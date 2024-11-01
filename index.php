@@ -78,7 +78,7 @@ function limparPost($dados) {
         </tr>";
 
         foreach ($dados as $chave => $valor) {
-            // Verifica se o custo é maior ou igual a 1000
+
             $highCostClass = ($valor['custo'] >= 1000) ? 'high-cost' : '';
 
             echo "<tr id='tarefa_".htmlspecialchars($valor['id'])."' class='draggable $highCostClass' draggable='true' data-id='".htmlspecialchars($valor['id'])."'>
@@ -117,7 +117,7 @@ function limparPost($dados) {
     }
     ?>
 
-    <!-- Modal de Edição -->
+    <!-- MODAL EDIÇÃO -->
     <div id="editModal" style="display:none; position:fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.7); z-index: 1000;">
         <div style="background-color:#c4273f; margin: 15% auto; padding: 20px; border: 1px solid #888; width: 300px;">
             <span onclick="closeEditModal()" style="cursor:pointer; float:right;">&times;</span>

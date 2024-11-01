@@ -51,7 +51,7 @@ function closeEditModal() {
     document.getElementById('editModal').style.display = 'none';
 }
 
-// Modal de Aviso
+// MODAL DE AVISO
 function closeModal() {
     document.getElementById('modal').style.display = 'none';
 }

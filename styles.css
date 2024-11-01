@@ -12,11 +12,7 @@
 .tarefas-box {
     display: flex;
     flex-direction: column;
-    margin-top: 10%;
-    width: 50%;
     height: auto;
-    border-radius: 20px;
-    background-color: #c4273f7c;
 }
 
 .tarefas-box h1 {
@@ -28,7 +24,7 @@ input[type="number"],
 input[type="date"],
 button {
     width: 100%;
-    padding: 5px;
+    padding: 3px;
     margin: 8px 0;
     border: 1px solid #ccc;
     border-radius: 4px;
@@ -77,15 +73,15 @@ p {
 
 .draggable:hover {
     background-color: #f0f0f0;
-    /* Efeito hover */
+
 }
 
 .drag-over {
-    border: 2px dashed #c4273f;
-    /* Estilo ao arrastar sobre o item */
+    border: 1px dashed #c4273f;
+
 }
 
 .high-cost {
     background-color: #ffeb3b;
-    /* Cor amarela para tarefas com custo alto */
+
 }
