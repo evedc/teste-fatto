@@ -68,3 +68,24 @@ p {
     padding: 20px;
     border: 1px solid #ccc;
 }
+
+.draggable {
+    cursor: pointer;
+    transition: background-color 0.3s;
+
+}
+
+.draggable:hover {
+    background-color: #f0f0f0;
+    /* Efeito hover */
+}
+
+.drag-over {
+    border: 2px dashed #c4273f;
+    /* Estilo ao arrastar sobre o item */
+}
+
+.high-cost {
+    background-color: #ffeb3b;
+    /* Cor amarela para tarefas com custo alto */
+}

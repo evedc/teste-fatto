@@ -2,9 +2,7 @@
 require('db/conexao.php');
 
 function limparPost($dados) {
-    // Remove espaços em branco no início e no final
     $dados = trim($dados);
-    // Converte caracteres especiais em entidades HTML para prevenir XSS
     $dados = htmlspecialchars($dados, ENT_QUOTES, 'UTF-8');
     return $dados;
 }
@@ -17,9 +15,7 @@ function limparPost($dados) {
     <link rel="stylesheet" href="styles.css">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- Icons Google-->
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-
     <title>Lista de Tarefas</title>
 </head>
 <body>
@@ -42,32 +38,24 @@ function limparPost($dados) {
         $data_limite = limparPost($_POST['data_limite']);
         $data = date('d-m-Y');
 
-        if ($nome == "" || $nome == null) {
-            echo "<b style='color:red'>Nome Tarefa não pode ser vazio</b>";
-            exit();
+        $sql = $pdo->prepare("SELECT * FROM tarefas WHERE nome = ?");
+        $sql->execute([$nome]);
+        if ($sql->rowCount() > 0) {
+            echo "<div id='modal' style='display:block;'>
+                    <div style='background-color:#c4273f; margin: 15% auto; padding: 20px; border: 1px solid #888; width: 300px;'>
+                        <span onclick='closeModal()' style='cursor:pointer; float:right;'>&times;</span>
+                        <p>Já existe uma tarefa com o nome \"$nome\". Clique <a href='#' onclick='openEditModal(\"$nome\", \"$custo\", \"$data_limite\")'>aqui</a> para editar.</p>
+                    </div>
+                  </div>";
+        } else {
+            $sql = $pdo->prepare("INSERT INTO tarefas (nome, custo, data_limite) VALUES (?, ?, ?)");
+            $sql->execute(array($nome, $custo, $data_limite));
+            echo "<b style='color:green'>Tarefa inserida com sucesso!</b>";
         }
-
-        if ($custo == "" || $custo == null) {
-            echo "<b style='color:red'>Custo não pode ser vazio</b>";
-            exit();
-        }
-
-        if ($data_limite == "" || $data_limite == null) {
-            echo "<b style='color:red'>Data limite não pode ser vazia</b>";
-            exit();
-        }
-
-        $sql = $pdo->prepare("INSERT INTO tarefas (nome, custo, data_limite) VALUES (?, ?, ?)");
-        $sql->execute(array($nome, $custo, $data_limite));
-
-        echo "<b style='color:green'>Tarefa inserida com sucesso!</b>";
     }
 
-    // Seção onde verifica se o botão de remover foi clicado
     if (isset($_POST['remover']) && isset($_POST['id'])) {
         $id = limparPost($_POST['id']);
-        
-        // Executa a remoção da tarefa no banco de dados
         $sql = $pdo->prepare("DELETE FROM tarefas WHERE id = ?");
         if ($sql->execute([$id])) {
             echo "<b style='color:green'>Tarefa removida com sucesso!</b>";
@@ -76,12 +64,12 @@ function limparPost($dados) {
         }
     }
 
-    $sql = $pdo->prepare("SELECT * FROM tarefas");
+    $sql = $pdo->prepare("SELECT * FROM tarefas ORDER BY id");
     $sql->execute();
     $dados = $sql->fetchAll();
 
     if (count($dados) > 0) {
-        echo "<br><br><table>
+        echo "<br><br><table id='tarefaTable'>
         <tr>
             <th>Nome Tarefa</th>
             <th>Custo (R$)</th>
@@ -90,12 +78,15 @@ function limparPost($dados) {
         </tr>";
 
         foreach ($dados as $chave => $valor) {
-            echo "<tr>
+            // Verifica se o custo é maior ou igual a 1000
+            $highCostClass = ($valor['custo'] >= 1000) ? 'high-cost' : '';
+
+            echo "<tr id='tarefa_".htmlspecialchars($valor['id'])."' class='draggable $highCostClass' draggable='true' data-id='".htmlspecialchars($valor['id'])."'>
                     <td>" . htmlspecialchars($valor['nome']) . "</td>
                     <td>" . htmlspecialchars($valor['custo']) . "</td>
                     <td>" . htmlspecialchars($valor['data_limite']) . "</td>
                     <td>
-                        <button onclick='openEditModal(" . $valor['id'] . ", \"" . htmlspecialchars($valor['nome']) . "\", " . htmlspecialchars($valor['custo']) . ", \"" . htmlspecialchars($valor['data_limite']) . "\")' style='background:none; border:none; cursor:pointer;'>
+                        <button onclick='openEditModal(" . htmlspecialchars($valor['id']) . ", \"" . htmlspecialchars($valor['nome']) . "\", " . htmlspecialchars($valor['custo']) . ", \"" . htmlspecialchars($valor['data_limite']) . "\")' style='background:none; border:none; cursor:pointer;'>
                             <span class='material-icons'>edit</span>
                         </button>
                         <form method='post' style='display:inline;'>
@@ -119,7 +110,6 @@ function limparPost($dados) {
         $custo = limparPost($_POST['custo']);
         $data_limite = limparPost($_POST['data_limite']);
 
-        // Atualiza a tarefa no banco de dados
         $sql = $pdo->prepare("UPDATE tarefas SET nome = ?, custo = ?, data_limite = ? WHERE id = ?");
         $sql->execute(array($nome, $custo, $data_limite, $id));
 
@@ -127,22 +117,20 @@ function limparPost($dados) {
     }
     ?>
 
-    <!-- Modal de Edição com CSS incluído diretamente -->
+    <!-- Modal de Edição -->
     <div id="editModal" style="display:none; position:fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.7); z-index: 1000;">
         <div style="background-color:#c4273f; margin: 15% auto; padding: 20px; border: 1px solid #888; width: 300px;">
             <span onclick="closeEditModal()" style="cursor:pointer; float:right;">&times;</span>
             <h2 style="color: #fff">Editar Tarefa</h2>
             <form method="post" id="editForm">
+                <input type="hidden" name="id" id="editId">
                 <input type="text" name="nome" id="editNome" required>
                 <input type="number" name="custo" id="editCusto" required>
                 <input type="date" name="data_limite" id="editDataLimite" required>
-                <input type="hidden" name="id" id="editId">
                 <button type="submit" name="atualizar">Atualizar Tarefa</button>
             </form>
         </div>
     </div>
-</section>
-
 
 <script src="engine.js"></script>
 </body>
