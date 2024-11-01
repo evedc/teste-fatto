@@ -9,6 +9,9 @@ require('db/conexao.php');
     <link rel="stylesheet" href="styles.css">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Icons Google-->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
     <title>Lista de Tarefas</title>
 </head>
 <body>
@@ -66,7 +69,6 @@ require('db/conexao.php');
     $dados = $sql->fetchAll();
 
    ?>
-
 <?php
 
 if (count($dados) > 0) {
@@ -84,10 +86,15 @@ if (count($dados) > 0) {
                 <td>" . htmlspecialchars($valor['custo']) . "</td>
                 <td>" . htmlspecialchars($valor['data_limite']) . "</td>
                 <td>
-                    <button onclick='openEditModal(" . $valor['id'] . ", \"" . htmlspecialchars($valor['nome']) . "\", " . htmlspecialchars($valor['custo']) . ", \"" . htmlspecialchars($valor['data_limite']) . "\")'>Editar</button>
+                
+                    <button onclick='openEditModal(" . $valor['id'] . ", \"" . htmlspecialchars($valor['nome']) . "\", " . htmlspecialchars($valor['custo']) . ", \"" . htmlspecialchars($valor['data_limite']) . "\")' style='background:none; border:none; cursor:pointer;'>
+                        <span class='material-icons'>edit</span>
+                    </button>
                     <form method='post' style='display:inline;'>
                         <input type='hidden' name='id' value='" . htmlspecialchars($valor['id']) . "'>
-                        <button type='submit' name='remover' onclick='return confirm(\"Tem certeza que deseja remover esta tarefa?\");'>Remover</button>
+                        <button type='submit' name='remover' onclick='return confirm(\"Tem certeza que deseja remover esta tarefa?\");' style='background:none; border:none; cursor:pointer;'>
+                            <span class='material-icons'>delete</span>
+                        </button>
                     </form>
                 </td>
               </tr>";
