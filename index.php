@@ -1,5 +1,5 @@
 <?php
-require('db/conexao.php');
+require('db/conexao.php');  
 ?>
 
 <!DOCTYPE html>
@@ -26,6 +26,11 @@ require('db/conexao.php');
     <br>
 
     <?php
+    // Função de limpeza de dados
+    function limparPost($data) {
+        return htmlspecialchars(stripslashes(trim($data)));
+    }
+
     // Inserção de tarefa
     if (isset($_POST['salvar'])) {
         if (isset($_POST['nome']) && isset($_POST['custo']) && isset($_POST['data_limite'])) {
@@ -77,9 +82,7 @@ require('db/conexao.php');
         </tr>";
 
         foreach ($dados as $chave => $valor) {
-
             $highCostClass = ($valor['custo'] >= 1000) ? 'high-cost' : '';
-
             echo "<tr id='tarefa_".htmlspecialchars($valor['id'])."' class='draggable $highCostClass' draggable='true' data-id='".htmlspecialchars($valor['id'])."'>
                     <td>" . htmlspecialchars($valor['nome']) . "</td>
                     <td>" . htmlspecialchars($valor['custo']) . "</td>
@@ -97,7 +100,6 @@ require('db/conexao.php');
                     </td>
                   </tr>";
         }
-
         echo "</table>";
     } else {
         echo "<p>Nenhuma tarefa cadastrada</p>";
