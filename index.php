@@ -1,5 +1,5 @@
 <?php
-require('./conexao.php'); 
+require('/var/www/html/conexao.php');
 ?>
 
 <!DOCTYPE html>
