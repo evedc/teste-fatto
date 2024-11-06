@@ -1,17 +1,10 @@
 <?php
-$servidor = "localhost";
-$usuario = "root";
-$senha = "";
-$banco = "lista_tarefas";
 
-$pdo = new PDO("mysql:host=$servidor;dbname=$banco", $usuario, $senha);
-
-if (!function_exists('limparPost')) {
-    function limparPost($dado) {
-        $dado = trim($dado);
-        $dado = stripslashes($dado);
-        $dado = htmlspecialchars($dado);
-        return $dado;
-    }
+try {
+    $pdo = new PDO('mysql:host=localhost;dbname=nome_do_banco', 'usuario', 'senha');
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+} catch (PDOException $e) {
+    echo 'Falha na conexão: ' . $e->getMessage();
+    exit;
 }
 ?>
