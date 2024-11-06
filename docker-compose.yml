@@ -22,7 +22,7 @@ services:
       MYSQL_USER: user
       MYSQL_PASSWORD: password
     volumes:
-      - ./src:/var/www/html:cached,uid=33,gid=33
+      - ./src:/var/www/html
     networks:
       - minha-rede
 
@@ -31,4 +31,4 @@ networks:
     driver: bridge
 
 volumes:
-  db_data: 
+  db_data:
