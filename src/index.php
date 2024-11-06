@@ -1,5 +1,14 @@
 <?php
-require('db/conexao.php');  
+$dsn = 'mysql:host=db;dbname=tarefas';
+$username = 'user';
+$password = 'password';
+
+try {
+    $pdo = new PDO($dsn, $username, $password);
+    echo "Conectado ao banco de dados!";
+} catch (PDOException $e) {
+    echo "Erro na conexão: " . $e->getMessage();
+}
 ?>
 
 <!DOCTYPE html>
@@ -26,37 +35,28 @@ require('db/conexao.php');
     <br>
 
     <?php
-    // Função de limpeza de dados
-    function limparPost($data) {
-        return htmlspecialchars(stripslashes(trim($data)));
-    }
+    if (isset($_POST['salvar']) && isset($_POST['nome']) && isset($_POST['custo']) && isset($_POST['data_limite'])) {
+        $nome = limparPost($_POST['nome']);
+        $custo = limparPost($_POST['custo']);
+        $data_limite = limparPost($_POST['data_limite']);
+        $data = date('d-m-Y');
 
-    // Inserção de tarefa
-    if (isset($_POST['salvar'])) {
-        if (isset($_POST['nome']) && isset($_POST['custo']) && isset($_POST['data_limite'])) {
-            $nome = limparPost($_POST['nome']);
-            $custo = limparPost($_POST['custo']);
-            $data_limite = limparPost($_POST['data_limite']);
-            $data = date('d-m-Y');
-    
-            $sql = $pdo->prepare("SELECT * FROM tarefas WHERE nome = ?");
-            $sql->execute([$nome]);
-            if ($sql->rowCount() > 0) {
-                echo "<div id='modal' style='display:block;'>
-                        <div style='background-color:#c4273f; margin: 15% auto; padding: 20px; border: 1px solid #888; width: 300px;'>
-                            <span onclick='closeModal()' style='cursor:pointer; float:right;'>&times;</span>
-                            <p>Já existe uma tarefa com o nome \"$nome\". Clique <a href='#' onclick='openEditModal(\"$nome\", \"$custo\", \"$data_limite\")'>aqui</a> para editar.</p>
-                        </div>
-                      </div>";
-            } else {
-                $sql = $pdo->prepare("INSERT INTO tarefas (nome, custo, data_limite) VALUES (?, ?, ?)");
-                $sql->execute([$nome, $custo, $data_limite]);
-                echo "<b style='color:green'>Tarefa inserida com sucesso!</b>";
-            }
+        $sql = $pdo->prepare("SELECT * FROM tarefas WHERE nome = ?");
+        $sql->execute([$nome]);
+        if ($sql->rowCount() > 0) {
+            echo "<div id='modal' style='display:block;'>
+                    <div style='background-color:#c4273f; margin: 15% auto; padding: 20px; border: 1px solid #888; width: 300px;'>
+                        <span onclick='closeModal()' style='cursor:pointer; float:right;'>&times;</span>
+                        <p>Já existe uma tarefa com o nome \"$nome\". Clique <a href='#' onclick='openEditModal(\"$nome\", \"$custo\", \"$data_limite\")'>aqui</a> para editar.</p>
+                    </div>
+                  </div>";
+        } else {
+            $sql = $pdo->prepare("INSERT INTO tarefas (nome, custo, data_limite) VALUES (?, ?, ?)");
+            $sql->execute(array($nome, $custo, $data_limite));
+            echo "<b style='color:green'>Tarefa inserida com sucesso!</b>";
         }
     }
 
-    // Remover tarefa
     if (isset($_POST['remover']) && isset($_POST['id'])) {
         $id = limparPost($_POST['id']);
         $sql = $pdo->prepare("DELETE FROM tarefas WHERE id = ?");
@@ -67,7 +67,6 @@ require('db/conexao.php');
         }
     }
 
-    // Exibição das tarefas
     $sql = $pdo->prepare("SELECT * FROM tarefas ORDER BY id");
     $sql->execute();
     $dados = $sql->fetchAll();
@@ -82,7 +81,9 @@ require('db/conexao.php');
         </tr>";
 
         foreach ($dados as $chave => $valor) {
+
             $highCostClass = ($valor['custo'] >= 1000) ? 'high-cost' : '';
+
             echo "<tr id='tarefa_".htmlspecialchars($valor['id'])."' class='draggable $highCostClass' draggable='true' data-id='".htmlspecialchars($valor['id'])."'>
                     <td>" . htmlspecialchars($valor['nome']) . "</td>
                     <td>" . htmlspecialchars($valor['custo']) . "</td>
@@ -100,12 +101,12 @@ require('db/conexao.php');
                     </td>
                   </tr>";
         }
+
         echo "</table>";
     } else {
         echo "<p>Nenhuma tarefa cadastrada</p>";
     }
 
-    // Atualizar tarefa
     if (isset($_POST['atualizar'])) {
         $id = limparPost($_POST['id']);
         $nome = limparPost($_POST['nome']);
@@ -113,7 +114,7 @@ require('db/conexao.php');
         $data_limite = limparPost($_POST['data_limite']);
 
         $sql = $pdo->prepare("UPDATE tarefas SET nome = ?, custo = ?, data_limite = ? WHERE id = ?");
-        $sql->execute([$nome, $custo, $data_limite, $id]);
+        $sql->execute(array($nome, $custo, $data_limite, $id));
 
         echo "<b style='color:green'>Tarefa atualizada com sucesso!</b>";
     }
