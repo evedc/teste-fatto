@@ -1,10 +1,13 @@
 <?php
-require('db/conexao.php');
+$dsn = 'mysql:host=db;dbname=tarefas';
+$username = 'user';
+$password = 'password';
 
-function limparPost($dados) {
-    $dados = trim($dados);
-    $dados = htmlspecialchars($dados, ENT_QUOTES, 'UTF-8');
-    return $dados;
+try {
+    $pdo = new PDO($dsn, $username, $password);
+    echo "Conectado ao banco de dados!";
+} catch (PDOException $e) {
+    echo "Erro na conexão: " . $e->getMessage();
 }
 ?>
 
